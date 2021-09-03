@@ -24,6 +24,8 @@ abstract class ViewerConfig(preferences: PreferencesHelper, private val scope: C
     var volumeKeysEnabled = false
     var volumeKeysInverted = false
     var trueColor = false
+    var colorManagement = false
+    var displayProfile = ""
     var alwaysShowChapterTransition = true
     var navigationMode = 0
         protected set
@@ -59,6 +61,12 @@ abstract class ViewerConfig(preferences: PreferencesHelper, private val scope: C
 
         preferences.trueColor()
             .register({ trueColor = it }, { imagePropertyChangedListener?.invoke() })
+
+        preferences.colorManagement()
+            .register({ colorManagement = it }, { imagePropertyChangedListener?.invoke() })
+
+        preferences.displayProfile()
+            .register({ displayProfile = it }, { imagePropertyChangedListener?.invoke() })
 
         preferences.alwaysShowChapterTransition()
             .register({ alwaysShowChapterTransition = it })

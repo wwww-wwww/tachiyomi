@@ -1,7 +1,12 @@
 package eu.kanade.tachiyomi.ui.setting
 
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.os.Build
+import androidx.core.net.toUri
 import androidx.preference.PreferenceScreen
+import com.hippo.unifile.UniFile
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.preference.PreferenceValues
 import eu.kanade.tachiyomi.data.preference.PreferenceValues.TappingInvertMode
@@ -12,11 +17,16 @@ import eu.kanade.tachiyomi.util.preference.defaultValue
 import eu.kanade.tachiyomi.util.preference.entriesRes
 import eu.kanade.tachiyomi.util.preference.intListPreference
 import eu.kanade.tachiyomi.util.preference.listPreference
+import eu.kanade.tachiyomi.util.preference.onClick
+import eu.kanade.tachiyomi.util.preference.preference
 import eu.kanade.tachiyomi.util.preference.preferenceCategory
 import eu.kanade.tachiyomi.util.preference.summaryRes
 import eu.kanade.tachiyomi.util.preference.switchPreference
 import eu.kanade.tachiyomi.util.preference.titleRes
 import eu.kanade.tachiyomi.util.system.hasDisplayCutout
+import eu.kanade.tachiyomi.util.system.toast
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import eu.kanade.tachiyomi.data.preference.PreferenceKeys as Keys
 
 class SettingsReaderController : SettingsController() {
@@ -67,6 +77,38 @@ class SettingsReaderController : SettingsController() {
         switchPreference {
             bindTo(preferences.pageTransitions())
             titleRes = R.string.pref_page_transitions
+        }
+
+        switchPreference {
+            bindTo(preferences.colorManagement())
+            titleRes = R.string.pref_color_management
+            summaryRes = R.string.pref_color_management_summary
+            defaultValue = false
+        }
+
+        preference {
+            bindTo(preferences.displayProfile())
+            titleRes = R.string.pref_display_profile
+            onClick {
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "application/octet-stream"
+                }
+                try {
+                    startActivityForResult(intent, DISPLAY_PROFILE_PATH)
+                } catch (e: ActivityNotFoundException) {
+                    activity?.toast(R.string.file_picker_error)
+                }
+            }
+
+            visibleIf(preferences.colorManagement()) { it }
+
+            preferences.displayProfile().asFlow()
+                .onEach { path ->
+                    val file = UniFile.fromUri(context, path.toUri())
+                    summary = file?.filePath ?: path
+                }
+                .launchIn(viewScope)
         }
 
         preferenceCategory {
@@ -319,5 +361,25 @@ class SettingsReaderController : SettingsController() {
                 defaultValue = false
             }
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (data != null && resultCode == Activity.RESULT_OK) {
+            val activity = activity ?: return
+            when (requestCode) {
+                DISPLAY_PROFILE_PATH -> {
+                    val uri = data.data
+                    uri?.let {
+                        val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        activity.contentResolver.takePersistableUriPermission(uri, flags)
+                        preferences.displayProfile().set(uri.toString())
+                    }
+                }
+            }
+        }
+    }
+
+    private companion object {
+        const val DISPLAY_PROFILE_PATH = 107
     }
 }
