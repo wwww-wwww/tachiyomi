@@ -23,6 +23,8 @@ abstract class ViewerConfig(readerPreferences: ReaderPreferences, private val sc
     var volumeKeysEnabled = false
     var volumeKeysInverted = false
     var trueColor = false
+    var colorManagement = false
+    var displayProfile = ""
     var alwaysShowChapterTransition = true
     var navigationMode = 0
         protected set
@@ -67,6 +69,12 @@ abstract class ViewerConfig(readerPreferences: ReaderPreferences, private val sc
 
         readerPreferences.alwaysShowChapterTransition()
             .register({ alwaysShowChapterTransition = it })
+
+        readerPreferences.colorManagement()
+            .register({ colorManagement = it }, { imagePropertyChangedListener?.invoke() })
+
+        readerPreferences.displayProfile()
+            .register({ displayProfile = it }, { imagePropertyChangedListener?.invoke() })
 
         forceNavigationOverlay = readerPreferences.showNavigationOverlayNewUser().get()
         if (forceNavigationOverlay) {

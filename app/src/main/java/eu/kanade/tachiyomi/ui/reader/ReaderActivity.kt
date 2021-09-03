@@ -48,6 +48,8 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.material.internal.ToolbarUtils
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
+import com.hippo.unifile.UniFile
 import dev.chrisbanes.insetter.applyInsetter
 import eu.kanade.domain.base.BasePreferences
 import eu.kanade.presentation.reader.BottomReaderBar
@@ -890,6 +892,14 @@ class ReaderActivity : BaseActivity() {
                 .onEach(::setTrueColor)
                 .launchIn(lifecycleScope)
 
+            preferences.colorManagement().asFlow()
+                .onEach { setColorManagement(it) }
+                .launchIn(lifecycleScope)
+
+            preferences.displayProfile().asFlow()
+                .onEach { setDisplayProfile(it) }
+                .launchIn(lifecycleScope)
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 readerPreferences.cutoutShort().changes()
                     .onEach(::setCutoutShort)
@@ -943,6 +953,30 @@ class ReaderActivity : BaseActivity() {
                 SubsamplingScaleImageView.setPreferredBitmapConfig(Bitmap.Config.ARGB_8888)
             } else {
                 SubsamplingScaleImageView.setPreferredBitmapConfig(Bitmap.Config.RGB_565)
+            }
+        }
+
+        /**
+         * Sets the applying color management to [enabled].
+         */
+        private fun setColorManagement(enabled: Boolean) {
+            SubsamplingScaleImageView.setColorManagement(enabled)
+        }
+
+        /**
+         * Sets the display profile to [path].
+         */
+        private fun setDisplayProfile(path: String) {
+            val file = UniFile.fromUri(baseContext, path.toUri())
+            if (file != null && file.exists()) {
+                val inputStream = file.openInputStream()
+                val outputStream = ByteArrayOutputStream()
+                inputStream.use { input ->
+                    outputStream.use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                SubsamplingScaleImageView.setDisplayProfile(outputStream.toByteArray())
             }
         }
 
