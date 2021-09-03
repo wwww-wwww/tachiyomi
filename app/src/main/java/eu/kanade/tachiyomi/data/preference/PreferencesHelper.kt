@@ -94,6 +94,10 @@ class PreferencesHelper(val context: Context) {
 
     fun fullscreen() = flowPrefs.getBoolean("fullscreen", true)
 
+    fun colorManagement() = flowPrefs.getBoolean("pref_color_management_key", false)
+
+    fun displayProfile() = flowPrefs.getString("pref_display_profile_key", "")
+
     fun cutoutShort() = flowPrefs.getBoolean("cutout_short", true)
 
     fun keepScreenOn() = flowPrefs.getBoolean("pref_keep_screen_on_key", true)
