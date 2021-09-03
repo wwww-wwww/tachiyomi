@@ -300,6 +300,9 @@
     <string name="pref_show_reading_mode_summary">Briefly show current mode when reader is opened</string>
     <string name="pref_true_color">32-bit color</string>
     <string name="pref_true_color_summary">Reduces banding, but may impact performance</string>
+    <string name="pref_color_management">Enable color management</string>
+    <string name="pref_color_management_summary">Use display profile and embedded icc profiles</string>
+    <string name="pref_display_profile">Display profile</string>
     <string name="pref_crop_borders">Crop borders</string>
     <string name="on">On</string>
     <string name="off">Off</string>

@@ -30,6 +30,7 @@ import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.core.graphics.ColorUtils
+import androidx.core.net.toUri
 import androidx.core.transition.doOnEnd
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -43,6 +44,7 @@ import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.slider.Slider
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
+import com.hippo.unifile.UniFile
 import dev.chrisbanes.insetter.applyInsetter
 import eu.kanade.tachiyomi.BuildConfig
 import eu.kanade.tachiyomi.R
@@ -86,6 +88,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.sample
 import logcat.LogPriority
 import nucleus.factory.RequiresPresenter
+import java.io.ByteArrayOutputStream
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -972,6 +975,14 @@ class ReaderActivity : BaseRxActivity<ReaderPresenter>() {
                 .onEach { setTrueColor(it) }
                 .launchIn(lifecycleScope)
 
+            preferences.colorManagement().asFlow()
+                .onEach { setColorManagement(it) }
+                .launchIn(lifecycleScope)
+
+            preferences.displayProfile().asFlow()
+                .onEach { setDisplayProfile(it) }
+                .launchIn(lifecycleScope)
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 preferences.cutoutShort().asFlow()
                     .onEach { setCutoutShort(it) }
@@ -1032,6 +1043,30 @@ class ReaderActivity : BaseRxActivity<ReaderPresenter>() {
                 SubsamplingScaleImageView.setPreferredBitmapConfig(Bitmap.Config.ARGB_8888)
             } else {
                 SubsamplingScaleImageView.setPreferredBitmapConfig(Bitmap.Config.RGB_565)
+            }
+        }
+
+        /**
+         * Sets the applying color management to [enabled].
+         */
+        private fun setColorManagement(enabled: Boolean) {
+            SubsamplingScaleImageView.setColorManagement(enabled)
+        }
+
+        /**
+         * Sets the display profile to [path].
+         */
+        private fun setDisplayProfile(path: String) {
+            val file = UniFile.fromUri(baseContext, path.toUri())
+            if (file != null && file.exists()) {
+                val inputStream = file.openInputStream()
+                val outputStream = ByteArrayOutputStream()
+                inputStream.use { input ->
+                    outputStream.use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                SubsamplingScaleImageView.setDisplayProfile(outputStream.toByteArray())
             }
         }
 
