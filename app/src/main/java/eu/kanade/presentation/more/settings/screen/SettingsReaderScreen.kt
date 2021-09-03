@@ -1,10 +1,14 @@
 package eu.kanade.presentation.more.settings.screen
 
+import android.content.Intent
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import eu.kanade.presentation.more.settings.Preference
 import eu.kanade.tachiyomi.ui.reader.setting.ReaderOrientation
@@ -29,6 +33,20 @@ object SettingsReaderScreen : SearchableSettings {
     @Composable
     override fun getPreferences(): List<Preference> {
         val readerPref = remember { Injekt.get<ReaderPreferences>() }
+        val cmsPref = readerPref.colorManagement()
+        val cms by cmsPref.collectAsState()
+        val context = LocalContext.current
+
+        var chooseColorProfile = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocument(),
+        ) { uri ->
+            uri?.let {
+                val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                context.contentResolver.takePersistableUriPermission(uri, flags)
+                readerPref.displayProfile().set(uri.toString())
+            }
+        }
+
         return listOf(
             Preference.PreferenceItem.ListPreference(
                 pref = readerPref.defaultReadingMode(),
@@ -61,6 +79,20 @@ object SettingsReaderScreen : SearchableSettings {
                 title = stringResource(MR.strings.pref_true_color),
                 subtitle = stringResource(MR.strings.pref_true_color_summary),
                 enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O,
+            ),
+            Preference.PreferenceItem.SwitchPreference(
+                pref = readerPref.colorManagement(),
+                title = stringResource(MR.strings.pref_color_management),
+                subtitle = stringResource(MR.strings.pref_color_management_summary),
+                enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O,
+            ),
+            Preference.PreferenceItem.TextPreference(
+                title = stringResource(MR.strings.pref_display_profile),
+                subtitle = readerPref.displayProfile().get(),
+                enabled = cms && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O,
+                onClick = {
+                    chooseColorProfile.launch(arrayOf("*/*"))
+                },
             ),
             Preference.PreferenceItem.SwitchPreference(
                 pref = readerPref.pageTransitions(),

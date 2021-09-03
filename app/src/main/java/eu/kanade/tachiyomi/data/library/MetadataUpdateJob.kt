@@ -172,7 +172,7 @@ class MetadataUpdateJob(private val context: Context, workerParams: WorkerParame
         private const val TAG = "MetadataUpdate"
         private const val WORK_NAME_MANUAL = "MetadataUpdate"
 
-        private const val MANGA_PER_SOURCE_QUEUE_WARNING_THRESHOLD = 60
+        private const val MANGA_PER_SOURCE_QUEUE_WARNING_THRESHOLD = 600
 
         fun startNow(context: Context): Boolean {
             val wm = context.workManager

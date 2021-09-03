@@ -38,6 +38,7 @@ import androidx.lifecycle.lifecycleScope
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.material.elevation.SurfaceColors
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.hippo.unifile.UniFile
 import dev.chrisbanes.insetter.applyInsetter
 import eu.kanade.domain.base.BasePreferences
 import eu.kanade.presentation.reader.DisplayRefreshHost
@@ -92,6 +93,7 @@ import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
+import java.io.ByteArrayOutputStream
 
 class ReaderActivity : BaseActivity() {
 
@@ -799,6 +801,14 @@ class ReaderActivity : BaseActivity() {
                 .onEach(::setTrueColor)
                 .launchIn(lifecycleScope)
 
+            readerPreferences.colorManagement().changes()
+                .onEach { setColorManagement(it) }
+                .launchIn(lifecycleScope)
+
+            readerPreferences.displayProfile().changes()
+                .onEach { setDisplayProfile(it) }
+                .launchIn(lifecycleScope)
+
             readerPreferences.cutoutShort().changes()
                 .onEach(::setCutoutShort)
                 .launchIn(lifecycleScope)
@@ -842,6 +852,30 @@ class ReaderActivity : BaseActivity() {
                 SubsamplingScaleImageView.setPreferredBitmapConfig(Bitmap.Config.ARGB_8888)
             } else {
                 SubsamplingScaleImageView.setPreferredBitmapConfig(Bitmap.Config.RGB_565)
+            }
+        }
+
+        /**
+         * Sets the applying color management to [enabled].
+         */
+        private fun setColorManagement(enabled: Boolean) {
+            SubsamplingScaleImageView.setColorManagement(enabled)
+        }
+
+        /**
+         * Sets the display profile to [path].
+         */
+        private fun setDisplayProfile(path: String) {
+            val file = UniFile.fromUri(baseContext, path.toUri())
+            if (file != null && file.exists()) {
+                val inputStream = file.openInputStream()
+                val outputStream = ByteArrayOutputStream()
+                inputStream.use { input ->
+                    outputStream.use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                SubsamplingScaleImageView.setDisplayProfile(outputStream.toByteArray())
             }
         }
 
