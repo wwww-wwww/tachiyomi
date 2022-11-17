@@ -339,6 +339,7 @@
     <string name="pref_color_management">Enable color management</string>
     <string name="pref_color_management_summary">Use display profile and embedded icc profiles</string>
     <string name="pref_display_profile">Display profile</string>
+    <string name="pref_select_display_profile">Select ICC profile</string>
     <string name="pref_crop_borders">Crop borders</string>
     <string name="pref_custom_brightness">Custom brightness</string>
     <string name="pref_grayscale">Grayscale</string>

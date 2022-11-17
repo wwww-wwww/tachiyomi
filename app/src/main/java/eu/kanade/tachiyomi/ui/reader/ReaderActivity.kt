@@ -48,7 +48,6 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.material.internal.ToolbarUtils
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.transition.platform.MaterialContainerTransform
-import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
 import com.hippo.unifile.UniFile
 import dev.chrisbanes.insetter.applyInsetter
 import eu.kanade.domain.base.BasePreferences
@@ -105,6 +104,7 @@ import tachiyomi.domain.manga.model.Manga
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
+import java.io.ByteArrayOutputStream
 import kotlin.math.abs
 
 class ReaderActivity : BaseActivity() {
@@ -892,11 +892,11 @@ class ReaderActivity : BaseActivity() {
                 .onEach(::setTrueColor)
                 .launchIn(lifecycleScope)
 
-            preferences.colorManagement().asFlow()
+            readerPreferences.colorManagement().changes()
                 .onEach { setColorManagement(it) }
                 .launchIn(lifecycleScope)
 
-            preferences.displayProfile().asFlow()
+            readerPreferences.displayProfile().changes()
                 .onEach { setDisplayProfile(it) }
                 .launchIn(lifecycleScope)
 
