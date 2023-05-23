@@ -18,7 +18,7 @@ class BasePreferences(
 
     fun extensionInstaller() = ExtensionInstallerPreference(context, preferenceStore)
 
-    fun acraEnabled() = preferenceStore.getBoolean("acra.enable", isPreviewBuildType || isReleaseBuildType)
+    fun acraEnabled() = preferenceStore.getBoolean("acra.enable", false)
 
     enum class ExtensionInstaller(@StringRes val titleResId: Int) {
         LEGACY(R.string.ext_installer_legacy),
