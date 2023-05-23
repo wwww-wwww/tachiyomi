@@ -3,8 +3,6 @@ package eu.kanade.domain.base
 import android.content.Context
 import androidx.annotation.StringRes
 import eu.kanade.tachiyomi.R
-import eu.kanade.tachiyomi.util.system.isPreviewBuildType
-import eu.kanade.tachiyomi.util.system.isReleaseBuildType
 import tachiyomi.core.preference.PreferenceStore
 
 class BasePreferences(
