@@ -85,7 +85,7 @@ android {
 
     productFlavors {
         create("standard") {
-            buildConfigField("boolean", "INCLUDE_UPDATER", "true")
+            // buildConfigField("boolean", "INCLUDE_UPDATER", "true")
             dimension = "default"
         }
         create("dev") {
@@ -132,6 +132,10 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = compose.versions.compiler.get()
     }
+}
+
+configurations.all {
+    exclude(module = "image-decoder")
 }
 
 dependencies {
@@ -219,7 +223,8 @@ dependencies {
     implementation(libs.subsamplingscaleimageview) {
         exclude(module = "image-decoder")
     }
-    implementation(libs.image.decoder)
+    //implementation(libs.image.decoder)
+    implementation(files("../../image-decoder/library/build/outputs/aar/library-debug.aar"))
 
     // UI libraries
     implementation(libs.material)

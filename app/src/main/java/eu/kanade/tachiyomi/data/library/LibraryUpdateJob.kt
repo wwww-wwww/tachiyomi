@@ -415,7 +415,7 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
 
         private const val ERROR_LOG_HELP_URL = "https://tachiyomi.org/docs/guides/troubleshooting/"
 
-        private const val MANGA_PER_SOURCE_QUEUE_WARNING_THRESHOLD = 60
+        private const val MANGA_PER_SOURCE_QUEUE_WARNING_THRESHOLD = 600
 
         /**
          * Key for category to update.
