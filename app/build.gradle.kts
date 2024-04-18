@@ -220,11 +220,8 @@ dependencies {
     // Image loading
     implementation(platform(libs.coil.bom))
     implementation(libs.bundles.coil)
-    implementation(libs.subsamplingscaleimageview) {
-        exclude(module = "image-decoder")
-    }
-    //implementation(libs.image.decoder)
-    implementation(files("../../image-decoder/library/build/outputs/aar/library-debug.aar"))
+    implementation(files("../../subsampling-scale-image-view/library/build/outputs/aar/library-release.aar"))
+    implementation(libs.image.decoder)
 
     // UI libraries
     implementation(libs.material)
