@@ -134,10 +134,6 @@ android {
     }
 }
 
-configurations.all {
-    exclude(module = "image-decoder")
-}
-
 dependencies {
     implementation(project(":i18n"))
     implementation(project(":core"))
